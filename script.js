@@ -42,22 +42,48 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Lógica do formulário de agendamento
   document.getElementById('form-agendamento').onsubmit = function(e) {
-      e.preventDefault();
-      
-      // Simulação de processamento do agendamento
-      document.getElementById('mensagem-agendamento').innerText = 'Agendamento realizado com sucesso!';
-      document.getElementById('mensagem-agendamento').style.display = 'block';
-      
-      // Fechar o modal após 3 segundos
-      setTimeout(function() {
-          fecharModalAgendamento();
-          
-          // Redefinir a mensagem após mais 1 segundo
-          setTimeout(function() {
-              document.getElementById('mensagem-agendamento').style.display = 'none';
-          }, 1000);
-      }, 3000);
-  };
+    e.preventDefault();
+
+    // Pegue os valores do formulário
+    const nome = document.getElementById('nome').value;
+    const email = document.getElementById('email').value;
+    const data_agendamento = document.getElementById('data').value;
+    const horario = document.getElementById('horario').value;
+
+    // Envie para o backend no Railway
+    fetch('https://site-escola-surf-production.up.railway.app/agendamentos', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            nome,
+            email,
+            data_agendamento,
+            horario
+        })
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Erro ao agendar');
+        return response.json();
+    })
+    .then(data => {
+        document.getElementById('mensagem-agendamento').innerText = 'Agendamento realizado com sucesso!';
+        document.getElementById('mensagem-agendamento').style.display = 'block';
+
+        setTimeout(function() {
+            fecharModalAgendamento();
+            setTimeout(function() {
+                document.getElementById('mensagem-agendamento').style.display = 'none';
+            }, 1000);
+        }, 3000);
+    })
+    .catch(error => {
+        document.getElementById('mensagem-agendamento').innerText = 'Erro ao agendar. Tente novamente.';
+        document.getElementById('mensagem-agendamento').style.display = 'block';
+        console.error(error);
+    });
+};
   
   // Configurar data mínima para hoje
   const hoje = new Date();
