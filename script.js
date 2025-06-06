@@ -1,10 +1,11 @@
- // Função para abrir o modal de agendamento com os dados da aula
- function abrirModalAgendamento(descricao, preco) {
-  // Atualizar informações da aula no modal
+ // Variável global para guardar o preço selecionado
+let precoSelecionado = 0;
+
+// Função para abrir o modal de agendamento com os dados da aula
+function abrirModalAgendamento(descricao, preco) {
   document.getElementById('reserva-titulo').textContent = descricao;
   document.getElementById('reserva-preco').textContent = `Preço: €${preco}`;
-  
-  // Exibir o modal
+  precoSelecionado = preco; // Salva o preço selecionado
   document.getElementById('modal-agendamento').style.display = 'flex';
 }
 
@@ -20,19 +21,14 @@ document.addEventListener('DOMContentLoaded', function() {
   const reservarBtns = document.querySelectorAll('.reservar-btn');
   reservarBtns.forEach(btn => {
       btn.addEventListener('click', function() {
-          // Obter dados da aula
           const descricao = this.dataset.descricao;
-          const preco = this.dataset.preco;
-          
-          // Abrir modal com os dados
+          const preco = Number(this.dataset.preco); // Certifique-se que é número
           abrirModalAgendamento(descricao, preco);
       });
   });
 
-  // Fecha o modal ao clicar no X
   document.getElementById('fechar-modal').onclick = fecharModalAgendamento;
 
-  // Fecha o modal ao clicar fora do conteúdo
   window.onclick = function(event) {
       const modal = document.getElementById('modal-agendamento');
       if (event.target === modal) {
@@ -40,18 +36,16 @@ document.addEventListener('DOMContentLoaded', function() {
       }
   };
 
-  // Lógica do formulário de agendamento
+  // Lógica do formulário de agendamento com Stripe
   document.getElementById('form-agendamento').onsubmit = function(e) {
     e.preventDefault();
 
-    // Pegue os valores do formulário
     const nome = document.getElementById('nome').value;
     const email = document.getElementById('email').value;
-    const data_agendamento = document.getElementById('data').value;
-    const horario = document.getElementById('horario').value;
+    // Pegue o preço selecionado
+    const preco = precoSelecionado;
 
-    // Envie para o backend no Railway
-    fetch('https://site-escola-surf-production.up.railway.app/agendamentos', {
+    fetch('https://site-escola-surf-production.up.railway.app/criar-sessao-pagamento', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -59,38 +53,30 @@ document.addEventListener('DOMContentLoaded', function() {
         body: JSON.stringify({
             nome,
             email,
-            data_agendamento,
-            horario
+            preco
         })
     })
-    .then(response => {
-        if (!response.ok) throw new Error('Erro ao agendar');
-        return response.json();
-    })
+    .then(response => response.json())
     .then(data => {
-        document.getElementById('mensagem-agendamento').innerText = 'Agendamento realizado com sucesso!';
-        document.getElementById('mensagem-agendamento').style.display = 'block';
-
-        setTimeout(function() {
-            fecharModalAgendamento();
-            setTimeout(function() {
-                document.getElementById('mensagem-agendamento').style.display = 'none';
-            }, 1000);
-        }, 3000);
+        if (data.url) {
+            window.location.href = data.url; // Redireciona para o checkout da Stripe
+        } else {
+            document.getElementById('mensagem-agendamento').innerText = 'Erro ao iniciar pagamento.';
+            document.getElementById('mensagem-agendamento').style.display = 'block';
+        }
     })
     .catch(error => {
-        document.getElementById('mensagem-agendamento').innerText = 'Erro ao agendar. Tente novamente.';
+        document.getElementById('mensagem-agendamento').innerText = 'Erro ao iniciar pagamento. Tente novamente.';
         document.getElementById('mensagem-agendamento').style.display = 'block';
         console.error(error);
     });
-};
-  
+  };
+
   // Configurar data mínima para hoje
   const hoje = new Date();
   const dd = String(hoje.getDate()).padStart(2, '0');
-  const mm = String(hoje.getMonth() + 1).padStart(2, '0'); // Janeiro é 0!
+  const mm = String(hoje.getMonth() + 1).padStart(2, '0');
   const yyyy = hoje.getFullYear();
-  
   const dataMinima = yyyy + '-' + mm + '-' + dd;
   document.getElementById('data').min = dataMinima;
 });
