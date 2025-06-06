@@ -108,6 +108,7 @@ document.getElementById('form-agendamento').addEventListener('submit', function(
     // Fazer requisição para o backend
     fetch('https://site-escola-surf-production.up.railway.app/criar-sessao-pagamento', {
         method: 'POST',
+        mode: 'cors',
         headers: {
             'Content-Type': 'application/json'
         },
