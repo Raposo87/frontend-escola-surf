@@ -259,7 +259,7 @@
     }
 
     .form-group {
-        margin-bottom: 10px;
+        margin-bottom: 15px;
     }
 
     .form-group label {
@@ -270,13 +270,14 @@
     }
 
     .form-group input,
-    .form-group select {
-        width: 100%;
-        padding: 2px;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        font-size: 16px;
-    }
+.form-group select {
+  width: 100%;
+  padding: 10px; /* Aumentado o padding */
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 16px;
+  box-sizing: border-box; /* Corrige largura */
+}
 
     #mensagem-agendamento {
         display: none;
@@ -285,7 +286,7 @@
         margin-top: 20px;
         border-radius: 5px;
         background-color: #dff0d8;
-        color: #3c763d;
+        color: var(--azul-escuro)
         font-weight: bold;
     }
 
@@ -325,3 +326,16 @@
             padding: 20px;
         }
     }
+
+    /* Melhorar responsividade */
+@media (max-width: 480px) {
+    .modal-content {
+      width: 95%;
+      padding: 15px;
+    }
+    
+    .btn {
+      padding: 10px 20px;
+      font-size: 14px;
+    }
+  }

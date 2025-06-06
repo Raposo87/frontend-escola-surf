@@ -56,24 +56,34 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('data').min = dataMinima;
 
   // FORMULÁRIO DE AGENDAMENTO CORRIGIDO
-  document.getElementById('form-agendamento').addEventListener('submit', function(e) {
+document.getElementById('form-agendamento').addEventListener('submit', function(e) {
     e.preventDefault();
-
+  
     // Validar campos
     const nome = document.getElementById('nome').value.trim();
     const email = document.getElementById('email').value.trim();
     const data_agendamento = document.getElementById('data').value;
     const horario = document.getElementById('horario').value;
-
-    if (!nome || !email || !data_agendamento || !horario) {
-      mostrarMensagem('Por favor, preencha todos os campos.', 'error');
+  
+    // Validação melhorada
+    if (!nome || nome.length < 3) {
+      mostrarMensagem('Nome deve ter pelo menos 3 caracteres', 'error');
       return;
     }
-
-    // Validar email
+  
+    if (!email) {
+      mostrarMensagem('Por favor, insira um email válido', 'error');
+      return;
+    }
+  
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      mostrarMensagem('Por favor, insira um email válido.', 'error');
+      mostrarMensagem('Por favor, insira um email válido', 'error');
+      return;
+    }
+  
+    if (!data_agendamento || !horario) {
+      mostrarMensagem('Por favor, selecione data e horário', 'error');
       return;
     }
 
